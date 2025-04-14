@@ -1,0 +1,3 @@
+# Ignore aws providers
+Setup/.terraform/providers/registry.terraform.io/hashicorp/aws/
+deploy/.terraform/providers/registry.terraform.io/hashicorp/aws/
