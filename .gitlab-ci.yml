@@ -43,10 +43,11 @@ Terraform Checks:
     - echo "$DOCKERHUB_TOKEN" | docker login --username $DOCKERHUB_USER --password-stdin
   stage: Test and Lint
   script: 
+    cd "C:\Users\ghodbene\OneDrive - Hewlett Packard Enterprise\Desktop\pfe"
     - docker compose run --rm terraform -chdir=deploy/ init -backend=false
-    - docker compose run --rm terraform -chdir=setup/ init -backend=false
-    - docker compose run --rm terraform -chdir=setup/ validate
-    - docker compose run --rm terraform -chdir=setup/ fmt -check
+    - docker compose run --rm terraform -chdir=Setup/ init -backend=false
+    - docker compose run --rm terraform -chdir=Setup/ validate
+    - docker compose run --rm terraform -chdir=Setup/ fmt -check
     - docker compose run --rm terraform -chdir=deploy/ validate
     - docker compose run --rm terraform -chdir=deploy/ fmt -check
   rules:
