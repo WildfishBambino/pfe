@@ -6,7 +6,6 @@ services:
       - ./deploy:/tf/deploy
     working_dir: /tf
     environment:
-      cd infra/
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRECT_ACCESS_KEY_ID=${AWS_SECRECT_ACCESS_KEY_ID}
       - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
