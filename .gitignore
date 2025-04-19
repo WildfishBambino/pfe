@@ -164,3 +164,4 @@ override.tf.json
 .terraformrc
 terraform.rc
 .deploy.env
+terraform.exe
