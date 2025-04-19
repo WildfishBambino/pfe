@@ -43,7 +43,6 @@ Terraform Checks:
     - echo "$DOCKERHUB_TOKEN" | docker login --username $DOCKERHUB_USER --password-stdin
   stage: Test and Lint
   script: 
-    - cd PFE/
     - docker compose run --rm terraform -chdir=deploy/ init -backend=false
     - docker compose run --rm terraform -chdir=setup/ init -backend=false
     - docker compose run --rm terraform -chdir=setup/ validate
