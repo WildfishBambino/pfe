@@ -1,6 +1,11 @@
 variables:
-  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
-  GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+  GIT_DEPTH: "0"
+
+stages:
+  - Test and Lint
+  - Quality Analysis  # Separate stage for SonarCloud
+
 sonarcloud-check:
   image:
     name: sonarsource/sonar-scanner-cli:latest
@@ -9,9 +14,42 @@ sonarcloud-check:
     key: "${CI_JOB_NAME}"
     paths:
       - .sonar/cache
+  stage: Quality Analysis
   script:
     - sonar-scanner
-  only:
-    - merge_requests
-    - master
-    - develop
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "develop"
+
+Python Checks:
+  image: docker:28.1.1
+  services:
+    - docker:28.1.1-dind
+  before_script:
+    - echo "$DOCKERHUB_TOKEN" | docker login --username $DOCKERHUB_USER --password-stdin
+  stage: Test and Lint
+  script:
+    - docker compose run --rm app sh -c "python manage.py wait_for_db && python manage.py test"
+    - docker compose run --rm app sh -c "flake8"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "prod"
+
+Terraform Checks:
+  image: docker:28.1.1
+  services:
+    - docker:28.1.1-dind
+  before_script:
+    - echo "$DOCKERHUB_TOKEN" | docker login --username $DOCKERHUB_USER --password-stdin
+  stage: Test and Lint
+  script: 
+    - cd PFE/
+    - docker compose run --rm terraform -chdir=deploy/ init -backend=false
+    - docker compose run --rm terraform -chdir=setup/ init -backend=false
+    - docker compose run --rm terraform -chdir=setup/ validate
+    - docker compose run --rm terraform -chdir=setup/ fmt -check
+    - docker compose run --rm terraform -chdir=deploy/ validate
+    - docker compose run --rm terraform -chdir=deploy/ fmt -check
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "prod"
