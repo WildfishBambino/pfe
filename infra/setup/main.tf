@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
       version = "5.94.1"
     }
   }
@@ -21,9 +21,9 @@ provider "aws" {
   default_tags {
     tags = {
       Environment = terraform.workspace
-      Project = var.project
-      contact = var.contact
-      ManageBy = "Terraform/setup"
+      Project     = var.project
+      contact     = var.contact
+      ManageBy    = "Terraform/setup"
     }
   }
 }

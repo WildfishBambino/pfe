@@ -1,15 +1,15 @@
 variable "tf-state-bucket" {
-  default     = "devsecopss3tfstate"
+  default = "devsecopss3tfstate"
 }
 
 variable "tf-state-lock" {
-    default = "Dynamodb-tf-state-lock"
+  default = "Dynamodb-tf-state-lock"
 }
 
 variable "project" {
-    default = "DevSecOps"
+  default = "DevSecOps"
 }
 
 variable "contact" {
-    default = "a.ghodbene@gmail.com"
+  default = "a.ghodbene@gmail.com"
 }

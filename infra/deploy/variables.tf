@@ -4,9 +4,9 @@ variable "prefix" {
 }
 
 variable "project" {
-    default = "DevSecOps"
+  default = "DevSecOps"
 }
 
 variable "contact" {
-    default = "a.ghodbene@gmail.com"
+  default = "a.ghodbene@gmail.com"
 }
