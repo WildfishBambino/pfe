@@ -24,9 +24,9 @@ snyk-scanner:
   variables:
     SNYK_TOKEN: $SNYK_TOKEN
   script:
+    - pip install -r requirements.txt
     - snyk test --severity-threshold=high --file=requirements.txt
     - snyk test --sarif-file-output=snyk.sarif || true  # Prevent job failure
-    - pip install -r requirements.txt
   artifacts:
     reports:
       sast: snyk.sarif
