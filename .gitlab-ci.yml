@@ -49,8 +49,6 @@ sonarcloud-check:
     SONAR_PROJECT_KEY: $SONAR_PROJECT_KEY
   script:
     - sonar-scanner
-      -Dsonar.projectKey=$SONAR_PROJECT_KEY
-      -Dsonar.login=$SONAR_TOKEN
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "prod"
