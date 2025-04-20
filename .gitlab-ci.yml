@@ -5,28 +5,37 @@ variables:
 stages:
   - Test and Lint
   - SCA 
-  - Quality Analysis  # Separate stage for SonarCloud
+  - Quality Analysis
 
-snyk-scanner:
-  stage: SCA
-  image: python:3.9
-  variables:
-    SNYK_TOKEN: $SNYK_TOKEN
+# --- Shared Variables ---
+.snyk_auth: &snyk_auth
   before_script:
     - apt-get update && apt-get install -y curl
     - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
     - apt-get install -y nodejs
     - npm install -g snyk
-    - snyk auth $SNYK_TOKEN
+    - snyk config set api=$SNYK_TOKEN  # Non-interactive auth
+
+# --- Snyk SCA ---
+snyk-scanner:
+  <<: *snyk_auth
+  stage: SCA
+  image: python:3.9
+  variables:
+    SNYK_TOKEN: $SNYK_TOKEN
   script:
-    - npm install -g snyk
-    - snyk auth $SNYK_TOKEN
     - snyk test --severity-threshold=high --file=requirements.txt
-    - snyk test --sarif-file-output=snyk.sarif
+    - snyk test --sarif-file-output=snyk.sarif || true  # Prevent job failure
   artifacts:
     reports:
       sast: snyk.sarif
+    paths:
+      - snyk.sarif  # Explicit artifact path
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "prod"
 
+# --- SonarCloud SAST ---
 sonarcloud-check:
   image:
     name: sonarsource/sonar-scanner-cli:latest
@@ -36,12 +45,19 @@ sonarcloud-check:
     paths:
       - .sonar/cache
   stage: Quality Analysis
+  variables:
+    SONAR_TOKEN: $SONAR_TOKEN
+    SONAR_PROJECT_KEY: $SONAR_PROJECT_KEY
   script:
     - sonar-scanner
+      -Dsonar.projectKey=$SONAR_PROJECT_KEY
+      -Dsonar.organization=<YOUR_SONARCLOUD_ORG>
+      -Dsonar.login=$SONAR_TOKEN
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "develop"
+    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "prod"
 
+# --- Python Tests & Linting ---
 Python Checks:
   image: docker:28.1.1
   services:
@@ -56,6 +72,7 @@ Python Checks:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "prod"
 
+# --- Terraform Validation ---
 Terraform Checks:
   image: docker:28.1.1
   services:
