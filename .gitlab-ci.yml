@@ -8,7 +8,7 @@ stages:
   - Quality Analysis  # Separate stage for SonarCloud
 
 snyk-scanner:
-  stage: sca
+  stage: SCA
   image: python:3.9
   variables:
     SNYK_TOKEN: $SNYK_TOKEN
