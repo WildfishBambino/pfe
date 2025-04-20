@@ -26,6 +26,7 @@ snyk-scanner:
   script:
     - snyk test --severity-threshold=high --file=requirements.txt
     - snyk test --sarif-file-output=snyk.sarif || true  # Prevent job failure
+    - pip install -r requirements.txt
   artifacts:
     reports:
       sast: snyk.sarif
