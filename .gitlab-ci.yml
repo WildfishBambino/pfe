@@ -24,6 +24,7 @@ snyk-scanner:
     SNYK_TOKEN: $SNYK_TOKEN
   script:
     - pip install -r requirements.txt
+    - snyk monitor --file=requirements.txt --project-name="pfe" --api=$SNYK_TOKEN
     - snyk test --severity-threshold=high --file=requirements.txt --sarif-file-output=snyk.sarif --api=$SNYK_TOKEN || true
   artifacts:
     reports:
